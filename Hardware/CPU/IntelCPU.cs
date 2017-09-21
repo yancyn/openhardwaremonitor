@@ -371,6 +371,8 @@ namespace OpenHardwareMonitor.Hardware.CPU {
           float tjMax = coreTemperatures[i].Parameters[0].Value;
           float tSlope = coreTemperatures[i].Parameters[1].Value;
           coreTemperatures[i].Value = tjMax - tSlope * deltaT;
+          // TODO: Trigger email if temperature more than warning level
+          System.Diagnostics.Debug.WriteLine("CPU Temperature: " + coreTemperatures[i].Value);
         } else {
           coreTemperatures[i].Value = null;
         }

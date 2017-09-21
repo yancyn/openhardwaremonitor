@@ -105,6 +105,7 @@ namespace OpenHardwareMonitor.Hardware.ATI {
         == ADL.ADL_OK) 
       {
         temperature.Value = 0.001f * adlt.Temperature;
+          // TODO: Trigger email if temperature more than warning level
         ActivateSensor(temperature);
       } else {
         temperature.Value = null;

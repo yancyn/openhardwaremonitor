@@ -10,7 +10,9 @@
 */
 
 using System;
+using System.Configuration;
 using System.Globalization;
+using System.IO;
 using System.Text;
 
 namespace OpenHardwareMonitor.Hardware.Nvidia {
@@ -150,7 +152,19 @@ namespace OpenHardwareMonitor.Hardware.Nvidia {
     public override void Update() {
       NvGPUThermalSettings settings = GetThermalSettings();
       foreach (Sensor sensor in temperatures)
-        sensor.Value = settings.Sensor[sensor.Index].CurrentTemp;
+      {
+          sensor.Value = settings.Sensor[sensor.Index].CurrentTemp;
+          // TODO: Trigger email if temperature more than warning level
+          if (File.Exists("sendEmail.exe"))
+          {
+              double warningValue = Convert.ToDouble(ConfigurationManager.AppSettings.GetValues("temp")); //ConfigurationSettings.AppSettings.GetValues("temp"));
+              double value = Convert.ToDouble(sensor.Value);
+              if (value > warningValue)
+              {
+
+              }
+          }
+      }
 
       if (fan != null) {
         int value = 0;
