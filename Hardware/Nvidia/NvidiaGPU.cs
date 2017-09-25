@@ -150,17 +150,25 @@ namespace OpenHardwareMonitor.Hardware.Nvidia {
       return null;
     }
 
+        private static DateTime LastSent;
         /// <summary>
-        /// Trigger email if temperature exceed warning level.
+        /// Trigger email if temperature exceed warning level every 30 minutes only.
         /// </summary>
+        /// <remarks>
+        /// Download SendEmail.exe from http://caspian.dotconf.net/menu/Software/SendEmail/ with TLS support and place at same location with OpenHardwareMonitor.exe application.
+        /// </remarks>
         private void SendEmail(double temperature)
         {
+            if (!File.Exists("sendEmail.exe")) return;
+
             string argument = ConfigurationManager.AppSettings["sendEmail"];
             argument = argument.Replace("%T", temperature.ToString()+ "°C");
             ProcessStartInfo startInfo = new ProcessStartInfo("sendEmail", argument);
             startInfo.UseShellExecute = false;
             startInfo.WorkingDirectory = AppDomain.CurrentDomain.BaseDirectory;
             Process.Start(startInfo);
+
+            LastSent = DateTime.Now;
             System.Diagnostics.Debug.WriteLine("Email sent");
         }
 
@@ -170,15 +178,11 @@ namespace OpenHardwareMonitor.Hardware.Nvidia {
       {
           sensor.Value = settings.Sensor[sensor.Index].CurrentTemp;
           System.Diagnostics.Debug.WriteLine(sensor.Value);
-          if (File.Exists("sendEmail.exe"))
-          {
-              double warningValue = Convert.ToDouble(ConfigurationManager.AppSettings["temperature"]);
-              double value = Convert.ToDouble(sensor.Value);
-              if (value > warningValue)
-              {
-                        SendEmail(value);
-              }
-          }
+
+            double warningValue = Convert.ToDouble(ConfigurationManager.AppSettings["temperature"]);
+            double value = Convert.ToDouble(sensor.Value);
+            if (value > warningValue && (DateTime.Now - LastSent).Minutes > 30)
+                SendEmail(value);
       }
 
       if (fan != null) {
