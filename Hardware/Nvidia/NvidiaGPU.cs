@@ -11,6 +11,7 @@
 
 using System;
 using System.Configuration;
+using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 using System.Text;
@@ -149,20 +150,33 @@ namespace OpenHardwareMonitor.Hardware.Nvidia {
       return null;
     }
 
+        /// <summary>
+        /// Trigger email if temperature exceed warning level.
+        /// </summary>
+        private void SendEmail(double temperature)
+        {
+            string argument = ConfigurationManager.AppSettings["sendEmail"];
+            argument = argument.Replace("%T", temperature.ToString()+ "°C");
+            ProcessStartInfo startInfo = new ProcessStartInfo("sendEmail", argument);
+            startInfo.UseShellExecute = false;
+            startInfo.WorkingDirectory = AppDomain.CurrentDomain.BaseDirectory;
+            Process.Start(startInfo);
+            System.Diagnostics.Debug.WriteLine("Email sent");
+        }
+
     public override void Update() {
       NvGPUThermalSettings settings = GetThermalSettings();
       foreach (Sensor sensor in temperatures)
       {
           sensor.Value = settings.Sensor[sensor.Index].CurrentTemp;
           System.Diagnostics.Debug.WriteLine(sensor.Value);
-          // TODO: Trigger email if temperature more than warning level
           if (File.Exists("sendEmail.exe"))
           {
-              double warningValue = Convert.ToDouble(ConfigurationManager.AppSettings["temp"]);
+              double warningValue = Convert.ToDouble(ConfigurationManager.AppSettings["temperature"]);
               double value = Convert.ToDouble(sensor.Value);
               if (value > warningValue)
               {
-                        System.Diagnostics.Debug.WriteLine("send email");
+                        SendEmail(value);
               }
           }
       }
