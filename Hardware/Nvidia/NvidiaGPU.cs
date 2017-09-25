@@ -162,7 +162,7 @@ namespace OpenHardwareMonitor.Hardware.Nvidia {
             if (!File.Exists("sendEmail.exe")) return;
 
             string argument = ConfigurationManager.AppSettings["sendEmail"];
-            argument = argument.Replace("%T", temperature.ToString()+ "°C");
+            argument = string.Format(argument, temperature);
             ProcessStartInfo startInfo = new ProcessStartInfo("sendEmail", argument);
             startInfo.UseShellExecute = false;
             startInfo.WorkingDirectory = AppDomain.CurrentDomain.BaseDirectory;
@@ -181,7 +181,7 @@ namespace OpenHardwareMonitor.Hardware.Nvidia {
 
             double warningValue = Convert.ToDouble(ConfigurationManager.AppSettings["temperature"]);
             double value = Convert.ToDouble(sensor.Value);
-            if (value > warningValue && (DateTime.Now - LastSent).Minutes > 30)
+            if (value > warningValue && (DateTime.Now - LastSent).TotalMinutes > 30)
                 SendEmail(value);
       }
 
