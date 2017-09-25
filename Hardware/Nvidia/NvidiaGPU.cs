@@ -154,14 +154,15 @@ namespace OpenHardwareMonitor.Hardware.Nvidia {
       foreach (Sensor sensor in temperatures)
       {
           sensor.Value = settings.Sensor[sensor.Index].CurrentTemp;
+          System.Diagnostics.Debug.WriteLine(sensor.Value);
           // TODO: Trigger email if temperature more than warning level
           if (File.Exists("sendEmail.exe"))
           {
-              double warningValue = Convert.ToDouble(ConfigurationManager.AppSettings.GetValues("temp")); //ConfigurationSettings.AppSettings.GetValues("temp"));
+              double warningValue = Convert.ToDouble(ConfigurationManager.AppSettings["temp"]);
               double value = Convert.ToDouble(sensor.Value);
               if (value > warningValue)
               {
-
+                        System.Diagnostics.Debug.WriteLine("send email");
               }
           }
       }
